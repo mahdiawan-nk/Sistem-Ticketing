@@ -35,19 +35,23 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
   const [formData, setFormData] = useState<Partial<HelpdeskTicket>>({});
   const [isGeneratingSolution, setIsGeneratingSolution] = useState(false);
   const [aiNotice, setAiNotice] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
+    setValidationError(null);
+    setAiNotice(null);
     if (ticket) {
       setFormData(ticket);
     } else {
       // New ticket default
+      const effectiveMonth = month === 0 ? (new Date().getMonth() + 1) : month;
       const defaultWorkday = workdays[0] || {
-        dateStr: `${year}-${String(month).padStart(2, '0')}-01`,
+        dateStr: `${year}-${String(effectiveMonth).padStart(2, '0')}-01`,
         dayName: 'Senin',
       };
       setFormData({
         id: `ticket-${Date.now()}`,
-        ticketNumber: `TKT-${year}${String(month).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`,
+        ticketNumber: `TKT-${year}${String(effectiveMonth).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`,
         date: defaultWorkday.dateStr,
         dayName: defaultWorkday.dayName,
         time: '08:30 WIB',
@@ -66,7 +70,6 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
         status: 'Selesai',
       });
     }
-    setAiNotice(null);
   }, [ticket, isOpen, year, month]);
 
   if (!isOpen) return null;
@@ -93,10 +96,11 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
 
   const handleAutoGenerateSolution = async () => {
     if (!formData.problemTitle && !formData.problemDescription) {
-      alert('Harap isi judul atau deskripsi keluhan terlebih dahulu agar AI dapat menganalisis.');
+      setValidationError('Harap isi judul atau deskripsi keluhan terlebih dahulu agar AI dapat menganalisis.');
       return;
     }
 
+    setValidationError(null);
     setIsGeneratingSolution(true);
     setAiNotice(null);
 
@@ -136,9 +140,10 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.problemTitle || !formData.reporterName) {
-      alert('Mohon lengkapi Nama Pelapor dan Judul Gangguan.');
+      setValidationError('Mohon lengkapi Nama Pelapor dan Judul Gangguan.');
       return;
     }
+    setValidationError(null);
 
     const dur = Number(formData.durationMinutes) || 30;
     const durFormatted =
@@ -194,6 +199,18 @@ export const TicketEditModal: React.FC<TicketEditModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4 text-xs">
+          {validationError && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center justify-between">
+              <span>{validationError}</span>
+              <button
+                type="button"
+                onClick={() => setValidationError(null)}
+                className="text-rose-500 hover:text-rose-700 ml-2"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           {/* Row 1: Nomor Tiket & Waktu */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>

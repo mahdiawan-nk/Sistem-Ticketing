@@ -9,7 +9,7 @@ export function exportTicketsToExcel(
   config: ReportConfig,
   options: ExportOptions = { showReporter: true }
 ) {
-  const monthName = INDO_MONTHS[month - 1];
+  const monthName = month === 0 ? 'Semua Bulan (Jan - Des)' : INDO_MONTHS[month - 1];
   const workbook = XLSX.utils.book_new();
   const showReporter = options.showReporter !== false;
 
@@ -42,11 +42,16 @@ export function exportTicketsToExcel(
     'Waktu Penyelesaian',
   ];
 
+  const periodSubtitle =
+    month === 0
+      ? `Periode: Tahun ${year} (Rekapitulasi Semua Bulan / Tahunan - Hari Kerja)`
+      : `Periode: ${monthName} ${year} (Hari Kerja: Senin s/d Jumat)`;
+
   const rows: any[][] = [
     [config.institutionName.toUpperCase()],
     [config.departmentName.toUpperCase()],
     ['LAPORAN REKAPITULASI TIKET ADUAN HELPDESK & PENANGANAN GANGGUAN IT'],
-    [`Periode: ${monthName} ${year} (Hari Kerja: Senin s/d Jumat)`],
+    [periodSubtitle],
     [`Dicetak pada: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}`],
     [],
     // KPI Summary

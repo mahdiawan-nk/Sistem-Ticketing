@@ -10,7 +10,7 @@ export function exportTicketsToPdf(
   config: ReportConfig,
   options: ExportOptions = { showReporter: true }
 ) {
-  const monthName = INDO_MONTHS[month - 1];
+  const monthName = month === 0 ? 'Semua Bulan (Tahunan)' : INDO_MONTHS[month - 1];
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
@@ -40,12 +40,11 @@ export function exportTicketsToPdf(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
-  doc.text(
-    `Periode: ${monthName} ${year}  |  Klasifikasi Waktu: Hari Kerja (Senin - Jumat)  |  Total: ${tickets.length} Tiket`,
-    pageWidth / 2,
-    31,
-    { align: 'center' }
-  );
+  const periodText =
+    month === 0
+      ? `Periode: Tahun ${year} (Rekapitulasi Semua Bulan)  |  Klasifikasi Waktu: Hari Kerja (Senin - Jumat)  |  Total: ${tickets.length} Tiket`
+      : `Periode: ${monthName} ${year}  |  Klasifikasi Waktu: Hari Kerja (Senin - Jumat)  |  Total: ${tickets.length} Tiket`;
+  doc.text(periodText, pageWidth / 2, 31, { align: 'center' });
 
   // Decorative divider line
   doc.setDrawColor(203, 213, 225); // slate-300

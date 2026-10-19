@@ -38,6 +38,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
   const [aiResult, setAiResult] = useState<AIAnalysisResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [appliedNotice, setAppliedNotice] = useState(false);
 
   if (!ticket) return null;
 
@@ -48,6 +49,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
     }
     setIsAnalyzing(true);
     setAnalysisError(null);
+    setAppliedNotice(false);
     try {
       const res = await fetch('/api/analyze-ticket', {
         method: 'POST',
@@ -83,7 +85,8 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
       durationFormatted: aiResult.estimasiWaktu || ticket.durationFormatted,
     };
     onUpdateTicket(updated);
-    alert('Solusi teknis dari AI berhasil diterapkan pada tiket ini!');
+    setAppliedNotice(true);
+    setTimeout(() => setAppliedNotice(false), 4000);
   };
 
   const handleCopySummary = () => {
@@ -317,15 +320,23 @@ ${ticket.preventiveAction}
                   </div>
                 )}
 
-                <div className="pt-2 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={handleApplyAiSolution}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs transition cursor-pointer"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Terapkan Solusi AI Ini ke Data Tiket</span>
-                  </button>
+                <div className="pt-2 flex items-center justify-between flex-wrap gap-2">
+                  {appliedNotice && (
+                    <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg flex items-center gap-1.5 animate-in fade-in">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      Solusi teknis AI berhasil diterapkan pada tiket ini!
+                    </span>
+                  )}
+                  <div className="ml-auto">
+                    <button
+                      type="button"
+                      onClick={handleApplyAiSolution}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs transition cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Terapkan Solusi AI Ini ke Data Tiket</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

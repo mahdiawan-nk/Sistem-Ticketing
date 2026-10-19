@@ -35,8 +35,17 @@ export interface WorkdayInfo {
 
 /**
  * Returns strictly weekdays (Monday to Friday) in the specified month and year.
+ * If month === 0, returns all workdays for the entire year (Jan - Dec).
  */
 export function getWorkdaysInMonth(year: number, month: number): WorkdayInfo[] {
+  if (month === 0) {
+    const allWorkdays: WorkdayInfo[] = [];
+    for (let m = 1; m <= 12; m++) {
+      allWorkdays.push(...getWorkdaysInMonth(year, m));
+    }
+    return allWorkdays;
+  }
+
   const days: WorkdayInfo[] = [];
   const totalDays = new Date(year, month, 0).getDate();
 
@@ -58,6 +67,13 @@ export function getWorkdaysInMonth(year: number, month: number): WorkdayInfo[] {
     }
   }
   return days;
+}
+
+export function getPeriodLabel(month: number, year: number): string {
+  if (month === 0) {
+    return `Semua Bulan Tahun ${year}`;
+  }
+  return `${INDO_MONTHS[month - 1]} ${year}`;
 }
 
 export function formatIndoDate(dateStr: string): string {

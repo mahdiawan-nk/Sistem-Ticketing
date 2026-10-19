@@ -225,10 +225,17 @@ app.get('/api/tickets', (req: Request, res: Response) => {
   const { year, month } = req.query;
   const allTickets = loadTickets();
 
-  if (year && month) {
-    const prefix = `${year}-${String(month).padStart(2, '0')}`;
-    const filtered = allTickets.filter((t: any) => t.date && t.date.startsWith(prefix));
-    return res.json({ tickets: filtered });
+  if (year) {
+    if (month && month !== 'all' && month !== '0') {
+      const prefix = `${year}-${String(month).padStart(2, '0')}`;
+      const filtered = allTickets.filter((t: any) => t.date && t.date.startsWith(prefix));
+      return res.json({ tickets: filtered });
+    } else {
+      // Return all months for the selected year
+      const prefix = `${year}-`;
+      const filtered = allTickets.filter((t: any) => t.date && t.date.startsWith(prefix));
+      return res.json({ tickets: filtered });
+    }
   }
 
   res.json({ tickets: allTickets });

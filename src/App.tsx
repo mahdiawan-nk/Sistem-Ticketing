@@ -52,6 +52,7 @@ export default function App() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [isUserManagementModalOpen, setIsUserManagementModalOpen] = useState<boolean>(false);
+  const [ticketToDelete, setTicketToDelete] = useState<HelpdeskTicket | null>(null);
 
   // Official report configuration (Kop & Signatures)
   const [reportConfig, setReportConfig] = useState<ReportConfig>({
@@ -144,8 +145,9 @@ export default function App() {
           params.technician && params.technician !== 'Otomatis' && params.technician !== 'Semua'
             ? ` untuk teknisi ${params.technician}`
             : '';
+        const targetMonthLabel = params.month === 0 ? 'Semua Bulan' : (INDO_MONTHS[params.month - 1] || 'Bulan');
         showToast(
-          `Berhasil men-generate ${data.tickets.length} tiket aduan hari kerja untuk ${INDO_MONTHS[params.month - 1]} ${params.year}${topicNote}${techNote} dan tersimpan di data/tickets.json!`,
+          `Berhasil men-generate ${data.tickets.length} tiket aduan hari kerja untuk ${targetMonthLabel} ${params.year}${topicNote}${techNote} dan tersimpan di data/tickets.json!`,
           'success'
         );
       } else {
@@ -230,22 +232,29 @@ export default function App() {
   };
 
   // Delete ticket and persist into data/tickets.json
-  const handleDeleteTicket = async (ticketId: string) => {
+  const handleDeleteTicket = (ticketId: string) => {
     if (userRole === 'viewer') {
       handleRequireLogin();
       return;
     }
     const target = tickets.find((t) => t.id === ticketId);
-    if (confirm(`Apakah Anda yakin ingin menghapus tiket ${target?.ticketNumber || ''} dari data/tickets.json?`)) {
-      try {
-        const res = await fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Gagal menghapus tiket di server.');
-        setTickets((prev) => prev.filter((t) => t.id !== ticketId));
-        showToast(`Tiket ${target?.ticketNumber || ''} dihapus dari data/tickets.json.`, 'info');
-      } catch (err: any) {
-        console.error(err);
-        showToast(err.message || 'Gagal menghapus tiket.', 'error');
-      }
+    if (target) {
+      setTicketToDelete(target);
+    }
+  };
+
+  const handleConfirmDeleteTicket = async () => {
+    if (!ticketToDelete) return;
+    try {
+      const res = await fetch(`/api/tickets/${ticketToDelete.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Gagal menghapus tiket di server.');
+      setTickets((prev) => prev.filter((t) => t.id !== ticketToDelete.id));
+      showToast(`Tiket ${ticketToDelete.ticketNumber} berhasil dihapus dari data/tickets.json.`, 'info');
+      setTicketToDelete(null);
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || 'Gagal menghapus tiket.', 'error');
+      setTicketToDelete(null);
     }
   };
 
@@ -316,7 +325,12 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* KPI & Summary Cards */}
-        <StatsCards tickets={tickets} year={year} month={month} />
+        <StatsCards
+          tickets={tickets}
+          year={year}
+          month={month}
+          onSelectMonth={(m) => setMonth(m)}
+        />
 
         {/* 
           ROLE VIEWER/USER VIEW:
@@ -340,6 +354,7 @@ export default function App() {
             onToggleReporterColumn={() => setShowReporterColumn(!showReporterColumn)}
             userRole={userRole}
             onRequireLogin={handleRequireLogin}
+            onShowNotification={(msg, type) => showToast(msg, type)}
           />
         ) : (
           <ViewerPeriodBar
@@ -430,6 +445,36 @@ export default function App() {
         onClose={() => setIsUserManagementModalOpen(false)}
         currentUserId={currentUser?.id || ''}
       />
+
+      {/* Delete Ticket Confirmation Modal */}
+      {ticketToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5 border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            <h3 className="text-base font-bold text-slate-900 mb-2">Konfirmasi Hapus Tiket</h3>
+            <p className="text-xs text-slate-600 leading-relaxed mb-4">
+              Apakah Anda yakin ingin menghapus tiket{' '}
+              <strong className="text-slate-900 font-mono">{ticketToDelete.ticketNumber}</strong>{' '}
+              (<span className="italic">{ticketToDelete.problemTitle}</span>)? Data akan dihapus secara permanen dari <code className="bg-slate-100 px-1 py-0.5 rounded text-[11px] font-mono">data/tickets.json</code>.
+            </p>
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setTicketToDelete(null)}
+                className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteTicket}
+                className="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-xs transition cursor-pointer"
+              >
+                Ya, Hapus Tiket
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

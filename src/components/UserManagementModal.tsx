@@ -87,24 +87,29 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({
     }
   };
 
-  const handleDeleteUser = async (user: UserAccount) => {
+  const [userToDelete, setUserToDelete] = useState<UserAccount | null>(null);
+
+  const handleDeleteUser = (user: UserAccount) => {
     if (user.id === currentUserId) {
-      alert('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.');
+      setErrorMsg('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.');
       return;
     }
+    setErrorMsg(null);
+    setUserToDelete(user);
+  };
 
-    if (!confirm(`Hapus user "${user.username}" (${user.name})? Tindakan ini akan menghapus data dari users.json.`)) {
-      return;
-    }
-
+  const handleConfirmDeleteUser = async () => {
+    if (!userToDelete) return;
     try {
-      const res = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/users/${userToDelete.id}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal menghapus user.');
-      setSuccessMsg(`User "${user.username}" berhasil dihapus.`);
+      setSuccessMsg(`User "${userToDelete.username}" berhasil dihapus dari users.json.`);
+      setUserToDelete(null);
       fetchUsers();
     } catch (err: any) {
       setErrorMsg(err.message || 'Gagal menghapus user.');
+      setUserToDelete(null);
     }
   };
 
@@ -251,6 +256,30 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({
                 <span>Refresh</span>
               </button>
             </div>
+
+            {userToDelete && (
+              <div className="mb-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-in fade-in">
+                <span className="text-rose-900 font-medium">
+                  Apakah Anda yakin ingin menghapus user <strong>"{userToDelete.username}"</strong> ({userToDelete.name}) dari <code className="text-[11px] bg-rose-100 px-1 py-0.5 rounded font-mono">users.json</code>?
+                </span>
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setUserToDelete(null)}
+                    className="px-2.5 py-1 text-slate-600 hover:bg-white rounded-lg border border-slate-200 font-medium cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDeleteUser}
+                    className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold shadow-2xs cursor-pointer"
+                  >
+                    Ya, Hapus
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
               <table className="w-full text-left border-collapse text-xs">

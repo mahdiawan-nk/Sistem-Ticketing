@@ -35,6 +35,7 @@ interface GenerationControlPanelProps {
   onToggleReporterColumn: () => void;
   userRole: UserRole;
   onRequireLogin: () => void;
+  onShowNotification?: (message: string, type: 'info' | 'error' | 'success') => void;
 }
 
 export const GenerationControlPanel: React.FC<GenerationControlPanelProps> = ({
@@ -52,6 +53,7 @@ export const GenerationControlPanel: React.FC<GenerationControlPanelProps> = ({
   onToggleReporterColumn,
   userRole,
   onRequireLogin,
+  onShowNotification,
 }) => {
   const [dataCount, setDataCount] = useState<number>(6); // Default 6, user can pick 5, 6, etc.
   const [categoryFilter, setCategoryFilter] = useState<string>('Semua');
@@ -61,10 +63,11 @@ export const GenerationControlPanel: React.FC<GenerationControlPanelProps> = ({
   const [institutionContext, setInstitutionContext] = useState<string>(
     'Divisi TIK & Sistem Informasi'
   );
+  const [monthNotice, setMonthNotice] = useState<string | null>(null);
 
   const isViewer = userRole === 'viewer';
   const workdays = getWorkdaysInMonth(year, month);
-  const currentMonthName = INDO_MONTHS[month - 1];
+  const currentMonthName = month === 0 ? 'Semua Bulan (Jan - Des)' : INDO_MONTHS[month - 1];
 
   const technicianOptions = [
     'Otomatis (Bervariasi)',
@@ -91,6 +94,17 @@ export const GenerationControlPanel: React.FC<GenerationControlPanelProps> = ({
       onRequireLogin();
       return;
     }
+
+    if (month === 0) {
+      const msg = 'Untuk men-generate tiket AI, silakan pilih salah satu bulan tertentu (misal: Oktober) di atas agar penanggalan hari kerja Senin s/d Jumat terdistribusi presisi.';
+      setMonthNotice(msg);
+      if (onShowNotification) {
+        onShowNotification(msg, 'info');
+      }
+      return;
+    }
+
+    setMonthNotice(null);
 
     const finalTech =
       selectedTechnician === 'Kustom'
@@ -220,8 +234,9 @@ export const GenerationControlPanel: React.FC<GenerationControlPanelProps> = ({
           <select
             value={month}
             onChange={(e) => onMonthChange(Number(e.target.value))}
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition"
           >
+            <option value={0}>Semua Bulan (Jan - Des)</option>
             {INDO_MONTHS.map((m, idx) => (
               <option key={m} value={idx + 1}>
                 {m}
@@ -388,6 +403,23 @@ export const GenerationControlPanel: React.FC<GenerationControlPanelProps> = ({
           className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 placeholder:text-slate-400"
         />
       </div>
+
+      {/* Month notice banner if user attempted generate with all months */}
+      {monthNotice && (
+        <div className="mb-3 p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-900 flex items-center justify-between gap-2 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-indigo-600 shrink-0" />
+            <span>{monthNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMonthNotice(null)}
+            className="text-indigo-400 hover:text-indigo-600 cursor-pointer text-xs"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Action Buttons Row */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">

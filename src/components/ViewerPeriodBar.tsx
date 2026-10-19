@@ -65,8 +65,9 @@ export const ViewerPeriodBar: React.FC<ViewerPeriodBarProps> = ({
             <select
               value={month}
               onChange={(e) => onMonthChange(Number(e.target.value))}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
+              <option value={0}>Semua Bulan (Jan - Des)</option>
               {INDO_MONTHS.map((m, idx) => (
                 <option key={m} value={idx + 1}>
                   {m}
