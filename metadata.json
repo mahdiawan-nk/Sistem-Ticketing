@@ -1,0 +1,6 @@
+{
+  "name": "Rekap Helpdesk IT & Log Gangguan",
+  "description": "Aplikasi Rekapitulasi Tiket Aduan Helpdesk dan Penanganan Gangguan IT berbasis hari kerja dengan analisis AI dan ekspor Excel & PDF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
