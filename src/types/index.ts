@@ -1,5 +1,9 @@
-export type PriorityLevel = 'Rendah' | 'Sedang' | 'Tinggi' | 'Kritis';
-export type TicketStatus = 'Selesai' | 'Dalam Proses' | 'Eskalasi Vendor' | 'Menunggu Part';
+export type PriorityLevel = "Rendah" | "Sedang" | "Tinggi" | "Kritis";
+export type TicketStatus =
+  | "Selesai"
+  | "Dalam Proses"
+  | "Eskalasi Vendor"
+  | "Menunggu Part";
 
 export interface HelpdeskTicket {
   id: string;
@@ -60,13 +64,13 @@ export interface AIAnalysisResult {
   rekomendasiEskalasi?: string;
 }
 
-export type UserRole = 'admin' | 'operator' | 'viewer';
+export type UserRole = "admin" | "operator" | "viewer";
 
 export interface UserAccount {
   id: string;
   username: string;
   name: string;
-  role: 'admin' | 'operator';
+  role: "admin" | "operator";
   password?: string;
   createdAt: string;
 }
@@ -77,3 +81,14 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
+//tambahan dani
+export interface KopSurat {
+  nama_instansi: string;
+  unit_kerja: string;
+  kota: string;
+  nama_pimpinan: string;
+  jabatan_pimpinan: string;
+  nip?: string;
+  nama_koordinator: string;
+  jabatan_koordinator: string;
+}

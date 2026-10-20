@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ShieldCheck,
   Calendar,
@@ -9,8 +9,9 @@ import {
   Shield,
   ShieldAlert,
   Eye,
-} from 'lucide-react';
-import { UserAccount, UserRole } from '../types';
+} from "lucide-react";
+import LogoPolkam from "../assets/images/polkam.png";
+import { UserAccount, UserRole } from "../types";
 
 interface HeaderProps {
   onOpenSettings: () => void;
@@ -39,9 +40,14 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           {/* Brand & Titles */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 shrink-0">
-              <ShieldCheck className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
+              <img src={LogoPolkam} alt="" />
             </div>
+            {/* <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/10 shrink-0">
+              <ShieldCheck className="w-6 h-6 text-white" />
+              jfdlkfj
+              <img src={LogoPolkam} alt="" />
+            </div> */}
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -66,15 +72,19 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Role Badge */}
-            {userRole === 'admin' ? (
+            {userRole === "admin" ? (
               <div className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-purple-950/70 text-purple-200 border border-purple-800/60">
                 <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
-                <span className="font-semibold">Admin: {currentUser?.name || 'Administrator'}</span>
+                <span className="font-semibold">
+                  Admin: {currentUser?.name || "Administrator"}
+                </span>
               </div>
-            ) : userRole === 'operator' ? (
+            ) : userRole === "operator" ? (
               <div className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-blue-950/70 text-blue-200 border border-blue-800/60">
                 <Shield className="w-3.5 h-3.5 text-blue-400" />
-                <span className="font-semibold">Operator: {currentUser?.name || 'Petugas'}</span>
+                <span className="font-semibold">
+                  Operator: {currentUser?.name || "Petugas"}
+                </span>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-800/80 text-amber-300 border border-slate-700">
@@ -84,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Admin-only Button: User Management (RBAC) */}
-            {userRole === 'admin' && (
+            {userRole === "admin" && (
               <button
                 type="button"
                 onClick={onOpenUserManagement}
@@ -97,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Admin-only Button: Report Format Settings */}
-            {userRole === 'admin' && (
+            {userRole === "admin" && (
               <button
                 type="button"
                 onClick={onOpenSettings}
@@ -110,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Login or Logout Button */}
-            {userRole === 'viewer' ? (
+            {userRole === "viewer" ? (
               <button
                 type="button"
                 onClick={onOpenLogin}

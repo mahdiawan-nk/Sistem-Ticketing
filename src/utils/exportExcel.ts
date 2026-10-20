@@ -1,6 +1,6 @@
-import * as XLSX from 'xlsx';
-import { HelpdeskTicket, ReportConfig, ExportOptions } from '../types';
-import { INDO_MONTHS } from './dateUtils';
+import * as XLSX from "xlsx";
+import { HelpdeskTicket, ReportConfig, ExportOptions } from "../types";
+import { INDO_MONTHS } from "./dateUtils";
 
 export function exportTicketsToExcel(
   tickets: HelpdeskTicket[],
@@ -9,37 +9,49 @@ export function exportTicketsToExcel(
   config: ReportConfig,
   options: ExportOptions = { showReporter: true }
 ) {
-  const monthName = month === 0 ? 'Semua Bulan (Jan - Des)' : INDO_MONTHS[month - 1];
+  const monthName =
+    month === 0 ? "Semua Bulan (Jan - Des)" : INDO_MONTHS[month - 1];
   const workbook = XLSX.utils.book_new();
   const showReporter = options.showReporter !== false;
 
   // 1. Build Header info
   const totalTickets = tickets.length;
-  const completedTickets = tickets.filter((t) => t.status === 'Selesai').length;
-  const inProgressTickets = tickets.filter((t) => t.status === 'Dalam Proses').length;
-  const escalatedTickets = tickets.filter((t) => t.status === 'Eskalasi Vendor' || t.status === 'Menunggu Part').length;
-  const totalMinutes = tickets.reduce((acc, t) => acc + (t.durationMinutes || 0), 0);
-  const avgMinutes = totalTickets > 0 ? Math.round(totalMinutes / totalTickets) : 0;
-  const avgDurationStr = avgMinutes >= 60 ? `${Math.floor(avgMinutes / 60)} Jam ${avgMinutes % 60} Menit` : `${avgMinutes} Menit`;
+  const completedTickets = tickets.filter((t) => t.status === "Selesai").length;
+  const inProgressTickets = tickets.filter(
+    (t) => t.status === "Dalam Proses"
+  ).length;
+  const escalatedTickets = tickets.filter(
+    (t) => t.status === "Eskalasi Vendor" || t.status === "Menunggu Part"
+  ).length;
+  const totalMinutes = tickets.reduce(
+    (acc, t) => acc + (t.durationMinutes || 0),
+    0
+  );
+  const avgMinutes =
+    totalTickets > 0 ? Math.round(totalMinutes / totalTickets) : 0;
+  const avgDurationStr =
+    avgMinutes >= 60
+      ? `${Math.floor(avgMinutes / 60)} Jam ${avgMinutes % 60} Menit`
+      : `${avgMinutes} Menit`;
 
   // Build Table Header dynamically based on showReporter
   const tableHeader = [
-    'No',
-    'No. Tiket',
-    'Hari & Tanggal (Senin-Jumat)',
-    'Jam Aduan',
-    ...(showReporter ? ['Nama Pelapor', 'Divisi / Unit Kerja'] : []),
-    'Kategori Gangguan',
-    'Prioritas',
-    'Judul Gangguan',
-    'Deskripsi Keluhan',
-    'Analisis Akar Masalah (Root Cause)',
-    'Tindakan & Solusi Teknis',
-    'Tindakan Pencegahan',
-    'Teknisi Penanggung Jawab',
-    'Durasi Penanganan',
-    'Status Tiket',
-    'Waktu Penyelesaian',
+    "No",
+    "No. Tiket",
+    "Hari & Tanggal (Senin-Jumat)",
+    "Jam Aduan",
+    ...(showReporter ? ["Nama Pelapor", "Divisi / Unit Kerja"] : []),
+    "Kategori Gangguan",
+    "Prioritas",
+    "Judul Gangguan",
+    "Deskripsi Keluhan",
+    "Analisis Akar Masalah (Root Cause)",
+    "Tindakan & Solusi Teknis",
+    "Tindakan Pencegahan",
+    "Teknisi Penanggung Jawab",
+    "Durasi Penanganan",
+    "Status Tiket",
+    "Waktu Penyelesaian",
   ];
 
   const periodSubtitle =
@@ -50,15 +62,33 @@ export function exportTicketsToExcel(
   const rows: any[][] = [
     [config.institutionName.toUpperCase()],
     [config.departmentName.toUpperCase()],
-    ['LAPORAN REKAPITULASI TIKET ADUAN HELPDESK & PENANGANAN GANGGUAN IT'],
+    ["LAPORAN REKAPITULASI TIKET ADUAN HELPDESK & PENANGANAN GANGGUAN IT"],
     [periodSubtitle],
-    [`Dicetak pada: ${new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}`],
+    [
+      `Dicetak pada: ${new Date().toLocaleDateString("id-ID", {
+        dateStyle: "full",
+      })}`,
+    ],
     [],
     // KPI Summary
-    ['RINGKASAN METRIK PELAYANAN HELPDESK:'],
-    ['Total Tiket Aduan', totalTickets, '', 'Tiket Selesai', completedTickets],
-    ['Tingkat Penyelesaian', totalTickets ? `${Math.round((completedTickets / totalTickets) * 100)}%` : '0%', '', 'Sedang Ditangani', inProgressTickets],
-    ['Rata-rata Durasi Penanganan (MTTR)', avgDurationStr, '', 'Eskalasi / Tertunda', escalatedTickets],
+    ["RINGKASAN METRIK PELAYANAN HELPDESK:"],
+    ["Total Tiket Aduan", totalTickets, "", "Tiket Selesai", completedTickets],
+    [
+      "Tingkat Penyelesaian",
+      totalTickets
+        ? `${Math.round((completedTickets / totalTickets) * 100)}%`
+        : "0%",
+      "",
+      "Sedang Ditangani",
+      inProgressTickets,
+    ],
+    [
+      "Rata-rata Durasi Penanganan (MTTR)",
+      avgDurationStr,
+      "",
+      "Eskalasi / Tertunda",
+      escalatedTickets,
+    ],
     [],
     tableHeader,
   ];
@@ -81,7 +111,7 @@ export function exportTicketsToExcel(
       t.technicianName,
       t.durationFormatted || `${t.durationMinutes} Menit`,
       t.status,
-      t.resolutionDate || '-',
+      t.resolutionDate || "-",
     ];
     rows.push(row);
   });
@@ -90,60 +120,64 @@ export function exportTicketsToExcel(
   rows.push([]);
   rows.push([]);
   rows.push([
-    '',
-    '',
-    '',
-    'Mengetahui / Menyetujui:',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    `${config.city}, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+    "",
+    "",
+    "",
+    "Mengetahui / Menyetujui:",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    `${config.city}, ${new Date().toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })}`,
   ]);
   rows.push([
-    '',
-    '',
-    '',
+    "",
+    "",
+    "",
     config.headTitle,
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
     config.technicianLeadTitle,
   ]);
   rows.push([]);
   rows.push([]);
   rows.push([]);
   rows.push([
-    '',
-    '',
-    '',
+    "",
+    "",
+    "",
     `(${config.headName})`,
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
     `(${config.technicianLeadName})`,
   ]);
   if (config.headNip || config.technicianLeadNip) {
     rows.push([
-      '',
-      '',
-      '',
-      config.headNip ? `NIP: ${config.headNip}` : '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      config.technicianLeadNip ? `NIP: ${config.technicianLeadNip}` : '',
+      "",
+      "",
+      "",
+      config.headNip ? `NIP: ${config.headNip}` : "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      config.technicianLeadNip ? `NIP: ${config.technicianLeadNip}` : "",
     ]);
   }
 
@@ -151,7 +185,7 @@ export function exportTicketsToExcel(
 
   // Set column widths dynamically
   const colWidths = [
-    { wch: 5 },  // No
+    { wch: 5 }, // No
     { wch: 18 }, // No Tiket
     { wch: 22 }, // Hari & Tanggal
     { wch: 12 }, // Jam
@@ -168,9 +202,13 @@ export function exportTicketsToExcel(
     { wch: 15 }, // Status
     { wch: 22 }, // Waktu Selesai
   ];
-  worksheet['!cols'] = colWidths;
+  worksheet["!cols"] = colWidths;
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, `Rekap Helpdesk ${monthName}`);
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    `Rekap Helpdesk ${monthName}`
+  );
 
   const fileName = `Rekap_Tiket_Helpdesk_${monthName}_${year}.xlsx`;
   XLSX.writeFile(workbook, fileName);
